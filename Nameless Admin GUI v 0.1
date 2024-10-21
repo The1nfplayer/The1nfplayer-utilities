@@ -1,0 +1,372 @@
+-- Orion Loader
+local OrionLib = loadstring(game:HttpGet(('https://pastebin.com/raw/WRUyYTdY')))()
+local Window = OrionLib:MakeWindow({Name = "Nameless Admin GUI - lost_preson77", HidePremium = false, SaveConfig = true, ConfigFolder = "Admin GUI SaveConfig", IntroEnabled = true, IntroText = "Admin GUI"})
+
+-- Var
+local player = game.Players.LocalPlayer
+local LocalJumpPower = 50
+local LocalSpeed = 16
+local haloEnabled = false
+local fillColor = Color3.new(1, 1, 0)  -- Màu vàng mặc định
+local outlineColor = Color3.new(0, 0, 0)  -- Màu đen mặc định
+local autoTele = false
+local selectedPlayer = nil  -- Thêm biến này để lưu người chơi đã chọn
+
+-- Intro tab
+local IntroTab = Window:MakeTab({
+    Name = "Intro",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Label
+IntroTab:AddLabel("Curret Verison: 0.1")
+IntroTab:AddLabel("Made in VietNam 100%")
+IntroTab:AddLabel("UI can be drag")
+IntroTab:AddLabel("App to use -> Lua")
+IntroTab:AddLabel("Operating system -> Android/Moblie (real)")
+IntroTab:AddLabel("Made with ChatGPT/AI")
+IntroTab:AddLabel("Special thank to EVERYONE who use this GUI!")
+IntroTab:AddLabel("My youtube channel is  [Scripter Roblox]")
+
+-- Setup character
+player.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    humanoid.WalkSpeed = LocalSpeed
+    humanoid.JumpPower = LocalJumpPower
+end)
+
+-- Function to create a new highlight effect
+local function createHighlight(playerCharacter)
+    local highlight = playerCharacter:FindFirstChild("HighlightEffect")
+    if not highlight then
+        highlight = Instance.new("Highlight")
+        highlight.Name = "HighlightEffect"
+        highlight.Adornee = playerCharacter
+        highlight.FillColor = fillColor
+        highlight.OutlineColor = outlineColor
+        highlight.Parent = playerCharacter
+    end
+end
+
+-- Function to update highlights for all players within range
+local function updateHighlights()
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (otherPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+
+            -- Cập nhật highlight
+            if haloEnabled then
+                createHighlight(otherPlayer.Character)
+            else
+                local highlight = otherPlayer.Character:FindFirstChild("HighlightEffect")
+                if highlight then
+                    highlight:Destroy()
+                end
+            end
+        end
+    end
+end
+
+-- Function to toggle highlights for all players
+local function toggleHighlight()
+    haloEnabled = not haloEnabled
+    updateHighlights()
+    if haloEnabled then
+        -- Thêm vòng lặp cập nhật highlight liên tục
+        while haloEnabled do
+            updateHighlights()
+            wait(0.05) -- Thay đổi giá trị wait để điều chỉnh tần suất cập nhật
+        end
+    end
+end
+
+-- LocalPlayerTab
+local LocalPlayerTab = Window:MakeTab({
+    Name = "Local Player",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Speed
+LocalPlayerTab:AddTextbox({
+    Name = "Speed",
+    Default = "16",
+    TextDisappear = true,
+    Callback = function(value)
+        LocalSpeed = tonumber(value) or 16
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = LocalSpeed
+        end
+    end    
+})
+
+LocalPlayerTab:AddButton({
+    Name = "Reset Speed",
+    Callback = function()
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = 16
+        end
+    end
+})
+
+-- Jump Power
+LocalPlayerTab:AddTextbox({
+    Name = "Jump Power",
+    Default = "50",
+    TextDisappear = true,
+    Callback = function(value)
+        LocalJumpPower = tonumber(value) or 50
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = LocalJumpPower
+        end
+    end
+})
+
+LocalPlayerTab:AddButton({
+    Name = "Reset Jump Power",
+    Callback = function()
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = 50
+        end
+    end
+})
+
+-- Toggle Highlight
+LocalPlayerTab:AddToggle({
+    Name = "Toggle Highlight for Others",
+    Default = false,
+    Callback = function(value)
+        haloEnabled = value
+        updateHighlights()
+        while haloEnabled do
+            updateHighlights()
+            wait(0.05)
+        end
+    end
+})
+
+-- Scripts Tab
+local ScriptsTab = Window:MakeTab({
+    Name = "Scripts",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Teleport function
+local function teleportToPlayer(targetPlayer)
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        -- Di chuyển người chơi đến vị trí của người chơi mục tiêu
+        local targetPosition = targetPlayer.Character.HumanoidRootPart.Position
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 3, 0)) -- Teleport slightly above the target
+    end
+end
+
+-- Add Dropdown for player list
+local teleportDropdown = LocalPlayerTab:AddDropdown({
+    Name = "Teleport to Player",
+    Options = {},  -- The list will be populated later
+    Callback = function(value)
+        selectedPlayer = value  -- Lưu người chơi đã chọn vào biến selectedPlayer
+    end
+})
+
+-- Teleport button
+LocalPlayerTab:AddButton({
+    Name = "Go to",
+    Callback = function()
+        if selectedPlayer then
+            -- Extract username from "username (displayName)" format
+            local playerName = selectedPlayer:match("^(.-) %(") or selectedPlayer
+            local targetPlayer = game.Players:FindFirstChild(playerName)
+            if targetPlayer then
+                teleportToPlayer(targetPlayer)
+            end
+        end
+    end
+})
+
+-- Auto teleport toggle
+LocalPlayerTab:AddToggle({
+    Name = "Follow",
+    Default = false,
+    Callback = function(value)
+        autoTele = value
+        while autoTele do
+            if selectedPlayer then
+                -- Extract username from "username (displayName)" format
+                local playerName = selectedPlayer:match("^(.-) %(") or selectedPlayer
+                local targetPlayer = game.Players:FindFirstChild(playerName)
+                if targetPlayer then
+                    teleportToPlayer(targetPlayer)
+                end
+            end
+            wait(0.05)
+        end
+    end
+})
+
+-- Auto teleport but creepy toggle
+LocalPlayerTab:AddToggle({
+    Name = "Follow Creepy",
+    Default = false,
+    Callback = function(value)
+        autoTele = value
+        while autoTele do
+            if selectedPlayer then
+                -- Extract username from "username (displayName)" format
+                local playerName = selectedPlayer:match("^(.-) %(") or selectedPlayer
+                local targetPlayer = game.Players:FindFirstChild(playerName)
+                if targetPlayer then
+                    teleportToPlayer(targetPlayer)
+                end
+            end
+            wait(0.75)
+        end
+    end
+})
+
+-- Function to update player dropdown
+local function updatePlayerList()
+    local playerNames = {}
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            local displayName = otherPlayer.DisplayName
+            local username = otherPlayer.Name
+            if username == displayName then
+                table.insert(playerNames, username)
+            else
+                table.insert(playerNames, username .. " (" .. displayName .. ")")
+            end
+        end
+    end
+    teleportDropdown:Refresh(playerNames, true)
+end
+
+-- Function to teleport to a player
+local function teleportToPlayer(targetPlayer)
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPosition = targetPlayer.Character.HumanoidRootPart.Position
+        player.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition + Vector3.new(0, 3, 0))  -- Teleport slightly above the target
+    end
+end
+
+-- Cập nhật danh sách người chơi khi có người chơi mới
+game.Players.PlayerAdded:Connect(function(newPlayer)
+    updatePlayerList()
+end)
+
+-- Cập nhật danh sách người chơi khi có người chơi rời đi
+game.Players.PlayerRemoving:Connect(function(leavingPlayer)
+    updatePlayerList()
+end)
+
+-- Cập nhật danh sách người chơi lần đầu khi script chạy
+updatePlayerList()
+
+-- Thêm scripts của bạn
+ScriptsTab:AddButton({
+    Name = "Moblie keyboard",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/advxzivhsjjdhxhsidifvsh/mobkeyboard/main/main.txt", true))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Inf yeld FE",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Meme sea FE",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Yatsuraa/Matsune/main/memesea.lua"))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Admin FE",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-rochips-universal-18294"))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Brookhaven FE",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/kigredns/sander-X-V4normal/main/normal'))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Sus PP FE",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/minecrafttotem/yzhs./main/Fe%20pp%20script%20very%20fun"))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Anti AFK",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/NoTwistedHere/Roblox/main/AntiAFK.lua"))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "Monster FE",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Tescalus/Pendulum-Hubs-Source/main/Pendulum%20Hub%20V5.lua"))()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "R6 changer FE",
+    Callback = function()
+        loadstring(game:HttpGet(('https://pastebin.com/raw/9wJepMwY'),true))()
+    end
+})
+
+-- Sự kiện để thêm highlight cho người chơi mới
+game.Players.PlayerAdded:Connect(function(newPlayer)
+    newPlayer.CharacterAdded:Connect(function(character)
+        character:WaitForChild("HumanoidRootPart")
+        if haloEnabled then
+            createHighlight(character)
+        end
+    end)
+end)
+
+-- Sự kiện để xóa highlight khi người chơi rời khỏi
+game.Players.PlayerRemoving:Connect(function(leavingPlayer)
+    if leavingPlayer.Character then
+        local highlight = leavingPlayer.Character:FindFirstChild("HighlightEffect")
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+end)
+
+-- Cập nhật highlight cho những người chơi đã có sẵn khi script chạy lần đầu
+updateHighlights()
+
+-- SettingTab
+local SettingTab = Window:MakeTab({
+    Name = "Setting",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Others
+SettingTab:AddButton({
+    Name = "Destroy GUI",
+    Callback = function()
+        OrionLib:Destroy()
+    end
+})
+
+-- Khởi động OrionLib
+OrionLib:Init()
