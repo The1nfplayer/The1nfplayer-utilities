@@ -2,56 +2,7 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 -- window
-local Window = OrionLib:MakeWindow({
-    Name = "Expo GUI",
-    HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "ExpoSaveConfig",
-    IntroEnabled = true,
-    IntroText = "Expo GUI"
-})
-
--- Function to make a Frame draggable
-local function makeDraggable(frame)
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
-
-    local function update(input)
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
-end
-
--- Apply draggable to the main window
-makeDraggable(Window.Main)
+local Window = OrionLib:MakeWindow({Name = "Expo GUI", HidePremium = true, SaveConfig = true, ConfigFolder = "ExpoSaveConfig", IntroEnabled = true, IntroText = "Expo V 0.1"})
 
 -- Var
 local player = game.Players.LocalPlayer
@@ -73,12 +24,11 @@ local IntroTab = Window:MakeTab({
 -- Label
 IntroTab:AddLabel("Curret Verison: 0.1")
 IntroTab:AddLabel("Made in VietNam 100%")
-IntroTab:AddLabel("UI can be drag")
-IntroTab:AddLabel("App to use -> Lua")
+IntroTab:AddLabel("App to use -> LuaDroid")
 IntroTab:AddLabel("Operating system -> Android/Moblie (real)")
 IntroTab:AddLabel("Made with ChatGPT/AI")
 IntroTab:AddLabel("Special thank to EVERYONE who use this GUI!")
-IntroTab:AddLabel("My youtube channel is  [Scripter Roblox]")
+IntroTab:AddLabel("My youtube channel is The1nfPlayer [Scripter]")
 
 -- Setup character
 player.CharacterAdded:Connect(function(char)
