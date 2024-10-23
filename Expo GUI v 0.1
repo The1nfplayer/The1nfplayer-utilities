@@ -1,5 +1,5 @@
 -- Orion Loader
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 -- window
 local Window = OrionLib:MakeWindow({Name = "Expo GUI", HidePremium = true, SaveConfig = true, ConfigFolder = "ExpoSaveConfig", IntroEnabled = true, IntroText = "Expo V 0.1"})
@@ -23,7 +23,7 @@ local IntroTab = Window:MakeTab({
 
 -- Label
 IntroTab:AddLabel("Curret Verison: 0.1")
-IntroTab:AddLabel("Made in VietNam 100%")
+IntroTab:AddLabel("Made in VietNam 100%%")
 IntroTab:AddLabel("App to use -> LuaDroid")
 IntroTab:AddLabel("Operating system -> Android/Moblie (real)")
 IntroTab:AddLabel("Made with ChatGPT/AI")
@@ -180,7 +180,7 @@ LocalPlayerTab:AddButton({
     Callback = function()
         if selectedPlayer then
             -- Extract username from "username (displayName)" format
-            local playerName = selectedPlayer:match("^(.-) %(") or selectedPlayer
+            local playerName = selectedPlayer:match("^(.-) %%%%(") or selectedPlayer
             local targetPlayer = game.Players:FindFirstChild(playerName)
             if targetPlayer then
                 teleportToPlayer(targetPlayer)
@@ -198,7 +198,7 @@ LocalPlayerTab:AddToggle({
         while autoTele do
             if selectedPlayer then
                 -- Extract username from "username (displayName)" format
-                local playerName = selectedPlayer:match("^(.-) %(") or selectedPlayer
+                local playerName = selectedPlayer:match("^(.-) %%(") or selectedPlayer
                 local targetPlayer = game.Players:FindFirstChild(playerName)
                 if targetPlayer then
                     teleportToPlayer(targetPlayer)
@@ -218,7 +218,7 @@ LocalPlayerTab:AddToggle({
         while autoTele do
             if selectedPlayer then
                 -- Extract username from "username (displayName)" format
-                local playerName = selectedPlayer:match("^(.-) %(") or selectedPlayer
+                local playerName = selectedPlayer:match("^(.-) %%(") or selectedPlayer
                 local targetPlayer = game.Players:FindFirstChild(playerName)
                 if targetPlayer then
                     teleportToPlayer(targetPlayer)
@@ -306,7 +306,7 @@ ScriptsTab:AddButton({
 ScriptsTab:AddButton({
     Name = "Sus PP FE",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/minecrafttotem/yzhs./main/Fe%20pp%20script%20very%20fun"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/minecrafttotem/yzhs./main/Fe%%20pp%%20script%%20very%%20fun"))()
     end
 })
 
@@ -320,7 +320,7 @@ ScriptsTab:AddButton({
 ScriptsTab:AddButton({
     Name = "Monster FE",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Tescalus/Pendulum-Hubs-Source/main/Pendulum%20Hub%20V5.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Tescalus/Pendulum-Hubs-Source/main/Pendulum%%20Hub%%20V5.lua"))()
     end
 })
 
